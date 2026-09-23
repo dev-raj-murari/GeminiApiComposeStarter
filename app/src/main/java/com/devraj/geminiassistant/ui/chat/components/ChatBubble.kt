@@ -1,5 +1,7 @@
 package com.devraj.geminiassistant.ui.chat.components
 
+import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,9 +18,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -26,7 +33,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,12 +48,17 @@ import java.util.Locale
 @Composable
 fun ChatBubble(
     message: ChatMessageEntity,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isSpeaking: Boolean = false,
+    onSpeakClick: ((ChatMessageEntity) -> Unit)? = null,
+    onStopSpeakClick: (() -> Unit)? = null
 ) {
     val isUser = message.isUser
     val isError = message.isError
     val configuration = LocalConfiguration.current
-    val maxBubbleWidth = (configuration.screenWidthDp * 0.82f).dp
+    val context = LocalContext.current
+    val clipboard = LocalClipboardManager.current
+    val maxBubbleWidth = (configuration.screenWidthDp * 0.85f).dp
 
     val bubbleShape = if (isUser) {
         RoundedCornerShape(
@@ -72,6 +87,8 @@ fun ChatBubble(
         isUser -> MaterialTheme.colorScheme.onPrimary
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
+
+    val wordCount = message.text.split(Regex("\\s+")).filter { it.isNotBlank() }.size
 
     Row(
         modifier = modifier
@@ -115,29 +132,116 @@ fun ChatBubble(
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
                 ) {
                     if (!isUser && !isError) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Gemini AI",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+
+                            Text(
+                                text = "$wordCount words",
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                color = textColor.copy(alpha = 0.6f)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
+
+                    if (isUser || isError) {
                         Text(
-                            text = "Gemini AI",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(bottom = 2.dp)
+                            text = message.text,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = textColor
+                        )
+                    } else {
+                        // Render rich markdown and code blocks for Gemini responses
+                        MarkdownContent(
+                            text = message.text,
+                            textColor = textColor
                         )
                     }
 
-                    Text(
-                        text = message.text,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = textColor
-                    )
+                    Spacer(modifier = Modifier.height(6.dp))
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = if (!isUser && !isError) Arrangement.SpaceBetween else Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (!isUser && !isError) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Text to Speech Button
+                                IconButton(
+                                    onClick = {
+                                        if (isSpeaking) {
+                                            onStopSpeakClick?.invoke()
+                                        } else {
+                                            onSpeakClick?.invoke(message)
+                                        }
+                                    },
+                                    modifier = Modifier.size(26.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = if (isSpeaking) Icons.Default.Clear else Icons.Default.PlayArrow,
+                                        contentDescription = if (isSpeaking) "Stop Audio" else "Read Aloud",
+                                        tint = if (isSpeaking) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
 
-                    Text(
-                        text = formatTimestamp(message.timestamp),
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        color = textColor.copy(alpha = 0.7f),
-                        modifier = Modifier.align(Alignment.End)
-                    )
+                                // Copy Message Button
+                                IconButton(
+                                    onClick = {
+                                        clipboard.setText(AnnotatedString(message.text))
+                                        Toast.makeText(context, "Copied to clipboard!", Toast.LENGTH_SHORT).show()
+                                    },
+                                    modifier = Modifier.size(26.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.ContentCopy,
+                                        contentDescription = "Copy Message",
+                                        tint = textColor.copy(alpha = 0.8f),
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                }
+
+                                // Share Message Button
+                                IconButton(
+                                    onClick = {
+                                        val sendIntent = Intent().apply {
+                                            action = Intent.ACTION_SEND
+                                            putExtra(Intent.EXTRA_TEXT, message.text)
+                                            type = "text/plain"
+                                        }
+                                        context.startActivity(Intent.createChooser(sendIntent, "Share Gemini Response"))
+                                    },
+                                    modifier = Modifier.size(26.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Share,
+                                        contentDescription = "Share",
+                                        tint = textColor.copy(alpha = 0.8f),
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        Text(
+                            text = formatTimestamp(message.timestamp),
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                            color = textColor.copy(alpha = 0.7f)
+                        )
+                    }
                 }
             }
         }

@@ -1,18 +1,24 @@
 # Gemini API Compose Starter
 
 ## Summary
-Implemented the Gemini chat assignment using Kotlin and Jetpack Compose for Devraj Murari (N066).
+Implemented the Gemini chat assignment using Kotlin and Jetpack Compose for Devraj Murari (N066) with advanced generative AI features.
 
 ## Features
-- Material 3 chat bubbles with LazyColumn, stable IDs, and auto-scroll.
-- StateFlow-based ViewModel and lifecycle-aware state collection (`collectAsStateWithLifecycle`).
-- Adaptive layout using WindowSizeClass for compact and expanded displays.
-- Loading indicators, input validation, and error states.
+- Real-time streaming response generation (`generateContentStream`) with live typing animation and dynamic auto-scroll.
+- Interactive stop generation control to interrupt streaming on the fly.
+- Rich Markdown and code block syntax cards with language tags, monospace styling, and one-tap "Copy Code" buttons.
+- Integrated Text-to-Speech (TTS) engine with speech synthesis controls on every AI response.
+- In-chat instant keyword search and message filtering.
+- Multi-Model selector supporting `gemini-3.6-flash`, `gemini-2.5-flash`, `gemini-1.5-flash`, and `gemini-1.5-pro`.
+- Persona presets (Android Architect, Code Tutor, Concise Bot, Helpful AI) and precision temperature slider.
+- Full conversation transcript export and share sheet integration (`Intent.ACTION_SEND`).
+- AI telemetry metadata badges (word count and response latency tracking).
 - Voice input modality using Android RecognizerIntent.
-- Preferences DataStore for customizable system prompt and temperature settings.
-- Persistent conversation history surviving process recreation and app restarts.
+- Preferences DataStore for customizable system prompt, temperature, and model selection.
+- Hardware-backed AES-256-GCM encryption using Android Keystore.
+- Transactional offline persistence surviving process recreation and app restarts.
 - System, Light, and Dark theme support.
-- Quick prompt suggestion chips for rapid interaction.
+- Adaptive layout using WindowSizeClass for compact, medium, and expanded tablet displays.
 
 ## API-Key Handling
 - Local configuration in `local.properties` with environment-variable fallback for CI.
@@ -28,10 +34,10 @@ Client-side encryption raises the bar against static analysis but cannot fully c
 3. Requests from the Android client are validated using Firebase App Check and Google Play Integrity.
 
 ## Verification & Testing
-- Unit tests: `./gradlew testDebugUnitTest` (7/7 tests passed, 100% green)
+- Unit tests: `./gradlew testDebugUnitTest` (8/8 tests passed, 100% green)
 - Debug APK build: `./gradlew assembleDebug`
 - Verified live response execution on Android Emulator (Pixel 8, API 37.1) using `gemini-3.6-flash`.
-- Verified local offline persistence, system prompt customization, and history clearing.
+- Verified real-time streaming, speech synthesis, syntax highlighting, search, and persona presets.
 
 ## Setup Instructions
 1. Obtain an API key from Google AI Studio.
@@ -54,14 +60,17 @@ Client-side encryption raises the bar against static analysis but cannot fully c
 ### Dark Mode
 ![Dark Mode](submission/screenshots/dark.png)
 
-### Live Conversation & History Persistence
+### Live Streaming Conversation & Syntax Highlighting
 ![Conversation History](submission/screenshots/history.png)
+
+### In-Chat Message Search & Filter
+![Search Messages](submission/screenshots/search.png)
+
+### Assistant Preferences & Model Selector
+![Settings Dialog](submission/screenshots/settings.png)
 
 ### Voice STT Input Interaction
 ![Voice Input](submission/screenshots/mic.png)
 
-### Assistant Preferences & Settings Dialog
-![Settings Dialog](submission/screenshots/settings.png)
-
-### Landscape Adaptive Layout
+### Landscape Adaptive Dashboard
 ![Landscape Mode](submission/screenshots/landscape.png)

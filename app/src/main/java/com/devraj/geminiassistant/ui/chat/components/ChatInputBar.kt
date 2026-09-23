@@ -46,6 +46,7 @@ fun ChatInputBar(
     onSend: () -> Unit,
     onVoiceInputClick: () -> Unit,
     isLoading: Boolean,
+    onStopGeneration: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -84,7 +85,7 @@ fun ChatInputBar(
                 onValueChange = onPromptChange,
                 placeholder = {
                     Text(
-                        text = "Ask Gemini anything...",
+                        text = if (isLoading) "Gemini is generating response..." else "Ask Gemini anything...",
                         style = MaterialTheme.typography.bodyMedium
                     )
                 },
@@ -130,13 +131,23 @@ fun ChatInputBar(
             Spacer(modifier = Modifier.width(8.dp))
 
             if (isLoading) {
-                CircularProgressIndicator(
+                // Stop Generation interactive button
+                IconButton(
+                    onClick = { onStopGeneration?.invoke() },
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer
+                    ),
                     modifier = Modifier
-                        .size(40.dp)
-                        .padding(6.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = 3.dp
-                )
+                        .size(44.dp)
+                        .clip(CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "Stop Generating",
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
             } else {
                 IconButton(
                     onClick = {
@@ -166,3 +177,4 @@ fun ChatInputBar(
         }
     }
 }
+
