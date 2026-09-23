@@ -356,7 +356,7 @@ private fun ChatContent(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_assistant),
+                        imageVector = Icons.Filled.AutoAwesome,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(52.dp)

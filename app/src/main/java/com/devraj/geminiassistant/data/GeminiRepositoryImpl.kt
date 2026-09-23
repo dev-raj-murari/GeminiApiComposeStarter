@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
-private const val DEFAULT_MODEL = "gemini-1.5-flash"
+private const val DEFAULT_MODEL = "gemini-3.6-flash"
 
 class GeminiRepositoryImpl(
     private val secureKeyStorage: SecureKeyStorage,

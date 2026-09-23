@@ -5,10 +5,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.devraj.geminiassistant.data.GeminiRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -18,23 +16,25 @@ class ChatViewModel(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChatUiState())
+    val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
 
-    val uiState: StateFlow<ChatUiState> = combine(
-        _uiState,
-        repository.getMessagesFlow(),
-        repository.getSystemInstructionFlow(),
-        repository.getTemperatureFlow()
-    ) { state, messages, instruction, temp ->
-        state.copy(
-            messages = messages,
-            systemInstruction = instruction,
-            temperature = temp
-        )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = ChatUiState()
-    )
+    init {
+        viewModelScope.launch {
+            repository.getMessagesFlow().collect { messages ->
+                _uiState.update { it.copy(messages = messages) }
+            }
+        }
+        viewModelScope.launch {
+            repository.getSystemInstructionFlow().collect { instruction ->
+                _uiState.update { it.copy(systemInstruction = instruction) }
+            }
+        }
+        viewModelScope.launch {
+            repository.getTemperatureFlow().collect { temp ->
+                _uiState.update { it.copy(temperature = temp) }
+            }
+        }
+    }
 
     fun onPromptChange(value: String) {
         _uiState.update { it.copy(prompt = value, promptError = null) }
