@@ -38,10 +38,9 @@ import androidx.compose.ui.unit.dp
 import java.util.Locale
 
 val AVAILABLE_MODELS = listOf(
-    "gemini-3.6-flash" to "Gemini 3.6 Flash (Fast & Intelligent)",
-    "gemini-2.5-flash" to "Gemini 2.5 Flash (General Purpose)",
-    "gemini-1.5-flash" to "Gemini 1.5 Flash (Lightweight)",
-    "gemini-1.5-pro" to "Gemini 1.5 Pro (Complex Reasoning)"
+    "gemini-3.6-flash" to "Gemini 3.6 Flash (Recommended & Active)",
+    "gemini-2.0-flash" to "Gemini 2.0 Flash (Next-Gen)",
+    "gemini-1.5-flash-latest" to "Gemini 1.5 Flash (Latest)"
 )
 
 val PERSONA_PRESETS = listOf(

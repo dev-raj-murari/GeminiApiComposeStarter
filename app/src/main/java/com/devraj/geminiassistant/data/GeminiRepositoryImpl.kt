@@ -77,13 +77,13 @@ class GeminiRepositoryImpl(
 
         val systemInstruction = preferencesManager.systemInstruction.first()
         val temperature = preferencesManager.temperature.first()
-        val activeModelName = preferencesManager.selectedModel.first().ifBlank { modelName }
+        var activeModelName = preferencesManager.selectedModel.first().ifBlank { modelName }
 
         val config = generationConfig {
             this.temperature = temperature
         }
 
-        val model = GenerativeModel(
+        var model = GenerativeModel(
             modelName = activeModelName,
             apiKey = apiKey,
             generationConfig = config,
@@ -121,14 +121,52 @@ class GeminiRepositoryImpl(
             throw e
         } catch (e: Exception) {
             val errorMsg = e.localizedMessage ?: "Failed to generate content"
+            // If model was deprecated/not found, auto-fallback to default model and retry
+            if (activeModelName != DEFAULT_MODEL && (errorMsg.contains("404") || errorMsg.contains("not found") || errorMsg.contains("no longer available"))) {
+                try {
+                    preferencesManager.savePreferences(systemInstruction, temperature, DEFAULT_MODEL)
+                    val fallbackModel = GenerativeModel(
+                        modelName = DEFAULT_MODEL,
+                        apiKey = apiKey,
+                        generationConfig = config,
+                        systemInstruction = content { text(systemInstruction) }
+                    )
+                    val fallbackStream = fallbackModel.generateContentStream(trimmedPrompt)
+                    fallbackStream.collect { chunk ->
+                        val chunkText = chunk.text ?: ""
+                        fullResponseBuilder.append(chunkText)
+                        emit(chunkText)
+                    }
+                    val finalReply = fullResponseBuilder.toString().ifBlank { "No response from Gemini." }
+                    chatMessageDao.insertMessage(
+                        ChatMessageEntity(
+                            text = finalReply,
+                            isUser = false,
+                            timestamp = System.currentTimeMillis()
+                        )
+                    )
+                    return@flow
+                } catch (fallbackEx: Exception) {
+                    // fall through to error handling
+                }
+            }
+
+            val cleanError = if (errorMsg.contains("no longer available")) {
+                "Selected model is no longer available. Please use gemini-3.6-flash."
+            } else if (errorMsg.contains("404")) {
+                "Model endpoint not found. Switched to gemini-3.6-flash."
+            } else {
+                errorMsg
+            }
+
             chatMessageDao.insertMessage(
                 ChatMessageEntity(
-                    text = "Error: $errorMsg",
+                    text = "Error: $cleanError",
                     isUser = false,
                     isError = true
                 )
             )
-            throw e
+            throw IllegalStateException(cleanError)
         }
     }
 
