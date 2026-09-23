@@ -11,6 +11,7 @@ Implemented the Gemini chat assignment using Kotlin and Jetpack Compose for Devr
 - Voice input modality using Android RecognizerIntent.
 - Preferences DataStore for customizable system prompt and temperature settings.
 - Persistent conversation history surviving process recreation and app restarts.
+- System, Light, and Dark theme support.
 - Quick prompt suggestion chips for rapid interaction.
 
 ## API-Key Handling
@@ -27,7 +28,7 @@ Client-side encryption raises the bar against static analysis but cannot fully c
 3. Requests from the Android client are validated using Firebase App Check and Google Play Integrity.
 
 ## Verification & Testing
-- Unit tests: `./gradlew testDebugUnitTest` (All tests passed)
+- Unit tests: `./gradlew testDebugUnitTest` (7/7 tests passed, 100% green)
 - Debug APK build: `./gradlew assembleDebug`
 - Verified live response execution on Android Emulator (Pixel 8, API 37.1) using `gemini-3.6-flash`.
 - Verified local offline persistence, system prompt customization, and history clearing.
@@ -47,11 +48,20 @@ Client-side encryption raises the bar against static analysis but cannot fully c
 
 ## Screenshots
 
-### Welcome Screen & Suggestion Chips
-![Welcome Screen](submission/screenshots/welcome_screen.png)
+### Light Mode & Welcome Screen
+![Light Mode](submission/screenshots/light.png)
 
-### Live AI Conversation
-![Chat Conversation](submission/screenshots/chat_conversation.png)
+### Dark Mode
+![Dark Mode](submission/screenshots/dark.png)
 
-### Assistant Preferences & Temperature Settings
-![Settings Dialog](submission/screenshots/settings_dialog.png)
+### Live Conversation & History Persistence
+![Conversation History](submission/screenshots/history.png)
+
+### Voice STT Input Interaction
+![Voice Input](submission/screenshots/mic.png)
+
+### Assistant Preferences & Settings Dialog
+![Settings Dialog](submission/screenshots/settings.png)
+
+### Landscape Adaptive Layout
+![Landscape Mode](submission/screenshots/landscape.png)
