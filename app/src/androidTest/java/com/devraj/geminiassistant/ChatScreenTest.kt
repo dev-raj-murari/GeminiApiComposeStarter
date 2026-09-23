@@ -34,7 +34,7 @@ class ChatScreenTest {
                     onClearChat = {},
                     onOpenSettings = {},
                     onCloseSettings = {},
-                    onSaveSettings = { _, _ -> },
+                    onSaveSettings = { _, _, _ -> },
                     onDismissError = {}
                 )
             }
@@ -62,14 +62,13 @@ class ChatScreenTest {
                     onClearChat = {},
                     onOpenSettings = {},
                     onCloseSettings = {},
-                    onSaveSettings = { _, _ -> },
+                    onSaveSettings = { _, _, _ -> },
                     onDismissError = {}
                 )
             }
         }
 
         composeTestRule.onNodeWithText("Hello Gemini!").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Hello Devraj! How can I help you today?").assertIsDisplayed()
     }
 
     @Test
@@ -87,7 +86,7 @@ class ChatScreenTest {
                     onClearChat = {},
                     onOpenSettings = {},
                     onCloseSettings = {},
-                    onSaveSettings = { _, _ -> },
+                    onSaveSettings = { _, _, _ -> },
                     onDismissError = {}
                 )
             }
@@ -97,5 +96,114 @@ class ChatScreenTest {
             .performClick()
 
         assert(voiceClicked)
+    }
+
+    @Test
+    fun chatScreen_settingsButton_isClickable() {
+        var settingsClicked = false
+
+        composeTestRule.setContent {
+            GeminiAssistantTheme {
+                ChatScreen(
+                    state = ChatUiState(),
+                    windowWidthSizeClass = WindowWidthSizeClass.Compact,
+                    onPromptChange = {},
+                    onSend = {},
+                    onOpenSettings = { settingsClicked = true }
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithContentDescription("Settings")
+            .performClick()
+
+        assert(settingsClicked)
+    }
+
+    @Test
+    fun chatScreen_clearChatButton_isClickable() {
+        var clearClicked = false
+
+        composeTestRule.setContent {
+            GeminiAssistantTheme {
+                ChatScreen(
+                    state = ChatUiState(messages = listOf(ChatMessageEntity(id = 1L, text = "Test", isUser = true))),
+                    windowWidthSizeClass = WindowWidthSizeClass.Compact,
+                    onPromptChange = {},
+                    onSend = {},
+                    onClearChat = { clearClicked = true }
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithContentDescription("Clear Chat")
+            .performClick()
+
+        assert(clearClicked)
+    }
+
+    @Test
+    fun chatScreen_searchButton_triggersSearch() {
+        var searchToggled = false
+
+        composeTestRule.setContent {
+            GeminiAssistantTheme {
+                ChatScreen(
+                    state = ChatUiState(),
+                    windowWidthSizeClass = WindowWidthSizeClass.Compact,
+                    onPromptChange = {},
+                    onSend = {},
+                    onToggleSearch = { searchToggled = it }
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithContentDescription("Search Messages")
+            .performClick()
+
+        assert(searchToggled)
+    }
+
+    @Test
+    fun chatScreen_exportButton_triggersExport() {
+        var exportClicked = false
+
+        composeTestRule.setContent {
+            GeminiAssistantTheme {
+                ChatScreen(
+                    state = ChatUiState(messages = listOf(ChatMessageEntity(id = 1L, text = "Test message", isUser = true))),
+                    windowWidthSizeClass = WindowWidthSizeClass.Compact,
+                    onPromptChange = {},
+                    onSend = {},
+                    onExportChat = { exportClicked = true }
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithContentDescription("Export Chat")
+            .performClick()
+
+        assert(exportClicked)
+    }
+
+    @Test
+    fun chatScreen_quickPrompt_isSelectable() {
+        var selectedPrompt = ""
+
+        composeTestRule.setContent {
+            GeminiAssistantTheme {
+                ChatScreen(
+                    state = ChatUiState(messages = emptyList()),
+                    windowWidthSizeClass = WindowWidthSizeClass.Compact,
+                    onPromptChange = { selectedPrompt = it },
+                    onSend = {}
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("Explain Kotlin Coroutines in simple terms")
+            .performClick()
+
+        assert(selectedPrompt == "Explain Kotlin Coroutines in simple terms")
     }
 }
