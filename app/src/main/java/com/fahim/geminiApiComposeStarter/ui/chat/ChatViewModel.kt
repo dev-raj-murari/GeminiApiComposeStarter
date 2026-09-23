@@ -5,8 +5,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.fahim.geminiApiComposeStarter.data.GeminiRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -16,10 +18,33 @@ class ChatViewModel(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChatUiState())
-    val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
+
+    // Combine database messages, preferences, and transient UI state
+    val uiState: StateFlow<ChatUiState> = combine(
+        _uiState,
+        repository.getMessagesFlow(),
+        repository.getSystemInstructionFlow(),
+        repository.getTemperatureFlow()
+    ) { state, messages, instruction, temp ->
+        state.copy(
+            messages = messages,
+            systemInstruction = instruction,
+            temperature = temp
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ChatUiState()
+    )
 
     fun onPromptChange(value: String) {
         _uiState.update { it.copy(prompt = value, promptError = null) }
+    }
+
+    fun onVoiceResult(spokenText: String) {
+        if (spokenText.isNotBlank()) {
+            _uiState.update { it.copy(prompt = spokenText, promptError = null) }
+        }
     }
 
     fun onSend() {
@@ -34,22 +59,46 @@ class ChatViewModel(
         }
         if (_uiState.value.isLoading) return
 
-        _uiState.update { it.copy(isLoading = true, errorMessage = null, promptError = null) }
+        _uiState.update { it.copy(prompt = "", isLoading = true, errorMessage = null, promptError = null) }
+
         viewModelScope.launch {
-            repository.generateText(prompt).fold(
-                onSuccess = { text ->
-                    _uiState.update { it.copy(isLoading = false, response = text) }
-                },
-                onFailure = { error ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            errorMessage = error.message ?: "Something went wrong",
-                        )
-                    }
-                },
-            )
+            val result = repository.generateText(prompt)
+            result.onFailure { error ->
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = error.localizedMessage ?: "Something went wrong"
+                    )
+                }
+            }.onSuccess { text ->
+                _uiState.update { it.copy(isLoading = false, response = text) }
+            }
         }
+    }
+
+    fun clearChat() {
+        viewModelScope.launch {
+            repository.clearHistory()
+        }
+    }
+
+    fun openSettings() {
+        _uiState.update { it.copy(isSettingsOpen = true) }
+    }
+
+    fun closeSettings() {
+        _uiState.update { it.copy(isSettingsOpen = false) }
+    }
+
+    fun saveSettings(instruction: String, temperature: Float) {
+        viewModelScope.launch {
+            repository.updatePreferences(instruction, temperature)
+            _uiState.update { it.copy(isSettingsOpen = false) }
+        }
+    }
+
+    fun dismissError() {
+        _uiState.update { it.copy(errorMessage = null) }
     }
 
     companion object {

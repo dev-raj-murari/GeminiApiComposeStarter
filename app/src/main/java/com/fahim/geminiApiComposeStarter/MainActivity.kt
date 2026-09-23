@@ -5,26 +5,33 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import com.fahim.geminiApiComposeStarter.data.GeminiRepositoryImpl
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import com.fahim.geminiApiComposeStarter.ui.chat.ChatRoute
 import com.fahim.geminiApiComposeStarter.ui.chat.ChatViewModel
 import com.fahim.geminiApiComposeStarter.ui.theme.GeminiApiComposeStarterTheme
-/*hi loo*/
+
 class MainActivity : ComponentActivity() {
 
     private val viewModel: ChatViewModel by viewModels {
+        val app = application as GeminiChatApplication
         ChatViewModel.factory(
-            repository = GeminiRepositoryImpl(apiKey = BuildConfig.GEMINI_API_KEY),
-            hasApiKey = BuildConfig.GEMINI_API_KEY.isNotBlank(),
+            repository = app.repository,
+            hasApiKey = app.secureKeyStorage.hasApiKey(),
         )
     }
 
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             GeminiApiComposeStarterTheme {
-                ChatRoute(viewModel = viewModel)
+                val windowSizeClass = calculateWindowSizeClass(this)
+                ChatRoute(
+                    viewModel = viewModel,
+                    windowWidthSizeClass = windowSizeClass.widthSizeClass
+                )
             }
         }
     }
