@@ -9,7 +9,7 @@ import com.fahim.geminiApiComposeStarter.data.GeminiRepositoryImpl
 import com.fahim.geminiApiComposeStarter.ui.chat.ChatRoute
 import com.fahim.geminiApiComposeStarter.ui.chat.ChatViewModel
 import com.fahim.geminiApiComposeStarter.ui.theme.GeminiApiComposeStarterTheme
-
+/*hi loo*/
 class MainActivity : ComponentActivity() {
 
     private val viewModel: ChatViewModel by viewModels {
