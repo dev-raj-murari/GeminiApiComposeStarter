@@ -1,11 +1,16 @@
 package com.fahim.geminiApiComposeStarter.ui.chat
 
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.speech.RecognizerIntent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,11 +28,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.DeleteSweep
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -60,6 +69,14 @@ import com.fahim.geminiApiComposeStarter.ui.chat.components.ChatInputBar
 import com.fahim.geminiApiComposeStarter.ui.chat.components.SettingsDialog
 import java.util.Locale
 
+private val QUICK_PROMPTS = listOf(
+    "Explain Kotlin Coroutines in simple terms",
+    "How does Jetpack Compose state work?",
+    "Write a sample Room DAO implementation",
+    "Best practices for Android Keystore encryption",
+    "Give me a fun Android programming joke"
+)
+
 @Composable
 fun ChatRoute(
     viewModel: ChatViewModel,
@@ -84,13 +101,19 @@ fun ChatRoute(
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
-            putExtra(RecognizerIntent.EXTRA_PROMPT, "Listening...")
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "Listening to your question...")
         }
         try {
             speechRecognizerLauncher.launch(intent)
         } catch (e: Exception) {
-            Toast.makeText(context, "Speech Recognition not available", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Speech Recognition not available on device", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    val onCopyMessage: (String) -> Unit = { text ->
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(ClipData.newPlainText("Gemini Message", text))
+        Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
     }
 
     ChatScreen(
@@ -104,6 +127,7 @@ fun ChatRoute(
         onCloseSettings = viewModel::closeSettings,
         onSaveSettings = viewModel::saveSettings,
         onDismissError = viewModel::dismissError,
+        onCopyMessage = onCopyMessage,
     )
 }
 
@@ -120,6 +144,7 @@ fun ChatScreen(
     onCloseSettings: () -> Unit = {},
     onSaveSettings: (String, Float) -> Unit = { _, _ -> },
     onDismissError: () -> Unit = {},
+    onCopyMessage: (String) -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val listState = rememberLazyListState()
@@ -209,13 +234,13 @@ fun ChatScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "AI Preferences",
+                            text = "AI Configuration",
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.primary
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "System Prompt:",
+                            text = "Active System Prompt:",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.outline
                         )
@@ -240,6 +265,7 @@ fun ChatScreen(
                     ChatContent(
                         state = state,
                         listState = listState,
+                        onPromptSelected = onPromptChange,
                         modifier = Modifier.weight(1f)
                     )
                     ChatInputBar(
@@ -260,8 +286,39 @@ fun ChatScreen(
                 ChatContent(
                     state = state,
                     listState = listState,
+                    onPromptSelected = onPromptChange,
                     modifier = Modifier.weight(1f)
                 )
+
+                // Quick Prompt Suggestion Chips when conversation is short
+                AnimatedVisibility(visible = state.messages.isEmpty() && !state.isLoading) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState())
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        QUICK_PROMPTS.forEach { promptSuggestion ->
+                            AssistChip(
+                                onClick = { onPromptChange(promptSuggestion) },
+                                label = { Text(promptSuggestion, style = MaterialTheme.typography.labelSmall) },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Lightbulb,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                },
+                                colors = AssistChipDefaults.assistChipColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                )
+                            )
+                        }
+                    }
+                }
+
                 ChatInputBar(
                     prompt = state.prompt,
                     onPromptChange = onPromptChange,
@@ -278,6 +335,7 @@ fun ChatScreen(
 private fun ChatContent(
     state: ChatUiState,
     listState: androidx.compose.foundation.lazy.LazyListState,
+    onPromptSelected: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     if (state.messages.isEmpty()) {
@@ -289,9 +347,9 @@ private fun ChatContent(
         ) {
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
                 ),
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(20.dp),
                 modifier = Modifier.padding(16.dp)
             ) {
                 Column(
@@ -302,13 +360,20 @@ private fun ChatContent(
                         painter = painterResource(R.drawable.ic_assistant),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier.size(52.dp)
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = stringResource(R.string.response_placeholder),
-                        style = MaterialTheme.typography.bodyLarge,
+                        text = "Hello Devraj! I am your Gemini AI Assistant.",
+                        style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "Ask me anything about Android, Kotlin, or choose a prompt suggestion below.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -337,12 +402,12 @@ private fun ChatContent(
                     ) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp,
+                            strokeWidth = 2.5.dp,
                             color = MaterialTheme.colorScheme.primary
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = "Gemini is thinking...",
+                            text = "Gemini is generating a response...",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
