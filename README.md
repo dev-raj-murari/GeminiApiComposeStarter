@@ -32,9 +32,13 @@ Client-side encryption raises the bar against static analysis but cannot fully c
 - Verified live response execution on Android Emulator (Pixel 8, API 37.1) using `gemini-3.6-flash`.
 - Verified local offline persistence, system prompt customization, and history clearing.
 
-## Setup Instructions
-1. Obtain an API key from Google AI Studio.
-2. Copy `local.properties.example` to `local.properties`.
-3. Add your key:
-   ```properties
-   GEMINI_API_KEY=your_actual_api_key_here
+<img width="1080" height="2400" alt="welcome_screen" src="https://github.com/user-attachments/assets/ec8ce314-792a-4869-b05d-12189f861ed9" />
+
+<img width="1080" height="2400" alt="light" src="https://github.com/user-attachments/assets/228057a7-0350-4537-a9ae-678c2a7e9bff" />
+
+<img width="1080" height="2400" alt="dark" src="https://github.com/user-attachments/assets/27d8bec0-e4d9-4b54-b483-31ae6d263a09" />
+
+
+
+
+
