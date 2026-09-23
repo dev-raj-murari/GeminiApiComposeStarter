@@ -10,10 +10,11 @@
 | Field | Details |
 | :--- | :--- |
 | **Student Name** | Devraj Murari |
+| **Roll Number** | N066 |
 | **GitHub Profile** | [https://github.com/dev-raj-murari](https://github.com/dev-raj-murari) |
 | **Student Repository** | [https://github.com/dev-raj-murari/GeminiApiComposeStarter](https://github.com/dev-raj-murari/GeminiApiComposeStarter) |
-| **Upstream Repository** | [https://github.com/ifahimkhan/GeminiApiComposeStarter](https://github.com/ifahimkhan/GeminiApiComposeStarter) |
-| **Submission Pull Request** | [https://github.com/ifahimkhan/GeminiApiComposeStarter/pulls](https://github.com/ifahimkhan/GeminiApiComposeStarter/pulls) |
+| **Submission Branch** | `N066_assignment_1` |
+| **Package Name** | `com.devraj.geminiassistant` |
 
 ---
 
@@ -32,7 +33,7 @@
 
 ## 1. Objective & Problem Statement
 
-The goal of this assignment is to extend and productionize the **Gemini Jetpack Compose Starter App**. The enhanced application provides an AI assistant leveraging Google's Generative AI SDK while strictly adhering to:
+The goal of this assignment is to develop an AI Assistant application for Android leveraging Google's Generative AI SDK, implemented by **Devraj Murari (Roll No: N066)** while strictly adhering to:
 - **Mandatory API Key Security:** Prevention of credential leaks via version control, zero hardcoding, Android Keystore AES-256-GCM hardware encryption at rest, on-demand in-memory decryption, and R8 obfuscation.
 - **Modern Jetpack Compose UI/UX:** Material 3 theming, LazyColumn with stable keys, animated auto-scrolling, state hoisting (Unidirectional Data Flow), and multi-window responsive layouts (`WindowSizeClass`).
 - **Persistence & Multimodality:** Room Database for persistent chat history surviving restarts, Preferences DataStore for AI settings, and Speech-to-Text (voice input) via Android `RecognizerIntent`.
@@ -42,7 +43,7 @@ The goal of this assignment is to extend and productionize the **Gemini Jetpack 
 
 ## 2. Architecture & System Design
 
-The application follows the recommended **Android Architecture Components (MVVM + Repository Pattern)** with clear separation of concerns:
+The application follows the recommended **Android Architecture Components (MVVM + Repository Pattern)** with clean separation under package `com.devraj.geminiassistant`:
 
 ```
 +---------------------------------------------------------------+
@@ -101,7 +102,7 @@ The API key is strictly isolated from Git version control:
 ## 4. User Interface & Jetpack Compose Enhancements
 
 ### 4.1 LazyColumn with Stable Keys & Auto-Scroll
-- Render conversation as a `LazyColumn` of Material 3 chat bubbles (user vs. Gemini) with stable keys (`key = { message.id }`).
+- Render conversation as a `LazyColumn` of Material 3 chat bubbles with stable keys (`key = { message.id }`).
 - Auto-scrolls smoothly to the latest message using `rememberLazyListState()` and `LaunchedEffect`.
 
 ### 4.2 State Hoisting & Unidirectional Data Flow (UDF)
@@ -171,7 +172,7 @@ As mandated by Section 3 of the lab manual:
 1. **Memory Dumping & Instrumentation (Frida / Xposed):** A reverse engineer on a rooted device can hook `javax.crypto.Cipher.doFinal()` or `GenerativeModel.<init>()` to capture the decrypted key from RAM during runtime.
 2. **Backend Proxy:** Remove all API keys from client binaries. Route requests through a secure server that authenticates users and communicates with Gemini using secret keys stored in Google Cloud Secret Manager.
 3. **Firebase App Check & Play Integrity API:** Verifies that incoming traffic originates exclusively from authentic, untampered app instances on genuine Android hardware.
-4. **Google Cloud Restrictions:** Apply package name + SHA-256 fingerprint restrictions to any client-facing keys.
+4. **Google Cloud Restrictions:** Apply package name (`com.devraj.geminiassistant`) + SHA-256 fingerprint restrictions to any client-facing keys.
 
 ---
 
@@ -179,14 +180,14 @@ As mandated by Section 3 of the lab manual:
 
 ```bash
 cd "C:\Users\Devraj\AndroidStudioProjects\GeminiApiComposeStarter"
-git checkout -b devraj_murari_assignment_1
+git checkout -b N066_assignment_1
 git add .
-git commit -m "feat: complete Lab Assignment 1 with Keystore AES-256 encryption, Room persistence, and Voice STT"
-git push -u origin devraj_murari_assignment_1
+git commit -m "feat(N066): complete Lab Assignment 1 with Keystore AES-256 encryption, Room persistence, and Voice STT"
+git push -u origin N066_assignment_1
 ```
 
 ---
 
 ## 9. Conclusion
 
-This implementation meets 100% of the specifications set forth in SVKM's NMIMS University Mobile Application Development Lab Manual (Subject Code: `702AI0E002`).
+This implementation by **Devraj Murari (Roll No: N066)** meets 100% of the specifications set forth in SVKM's NMIMS University Mobile Application Development Lab Manual (Subject Code: `702AI0E002`).

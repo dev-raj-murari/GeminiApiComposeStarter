@@ -1,8 +1,9 @@
 # PR: Enhanced Gemini AI Assistant with Hardware Keystore AES-256 Encryption, Room Persistence & Voice STT
 
-**Author:** Devraj Murari ([@dev-raj-murari](https://github.com/dev-raj-murari))  
-**Source Branch:** `dev-raj-murari:devraj_murari_assignment_1` (or `<RollNumber>_assignment_1`)  
-**Target Repository:** `ifahimkhan/GeminiApiComposeStarter:master`  
+**Student Name:** Devraj Murari  
+**Roll Number:** N066  
+**GitHub Profile:** [@dev-raj-murari](https://github.com/dev-raj-murari)  
+**Source Branch:** `dev-raj-murari:N066_assignment_1`  
 **Course:** Mobile Application Development (`702AI0E002`) — SVKM's NMIMS STME  
 **Assignment:** Lab Assignment 1  
 
@@ -10,7 +11,7 @@
 
 ## 📋 Summary of Changes
 
-This pull request completes all requirements specified in **Lab Assignment-1**, significantly enhancing the Gemini Jetpack Compose starter app into a secure, reactive, persistent, and multimodal Android application.
+This pull request completes all requirements specified in **Lab Assignment-1**, implemented by **Devraj Murari (Roll No: N066)**. It refactors the Gemini Jetpack Compose starter app into a secure, reactive, persistent, and multimodal Android application under package `com.devraj.geminiassistant`.
 
 ---
 
@@ -27,6 +28,7 @@ This pull request completes all requirements specified in **Lab Assignment-1**, 
 - **LazyColumn with Stable Keys:** Messages rendered as Material 3 chat bubbles with unique item keys (`key = { message.id }`) for zero redundant recompositions.
 - **Animated Auto-Scroll:** Synchronized auto-scrolling to the latest message using `rememberLazyListState()` and `LaunchedEffect`.
 - **State Hoisting:** Unidirectional Data Flow (UDF) with `ChatUiState` exposed as a `StateFlow` from `ChatViewModel` and consumed using `collectAsStateWithLifecycle()`.
+- **Prompt Suggestion Chips:** One-tap quick prompt suggestions for common questions.
 - **Responsive / Adaptive Layout:** Utilizes `WindowSizeClass` to render single-pane layout on mobile phones and adaptive two-pane master-detail view on tablets and landscape orientations.
 - **Dark Mode Support:** Implemented Material 3 dynamic color theming respecting `isSystemInDarkTheme()`.
 - **Loading & Error Feedback:** Animated progress indicator during API streaming and `SnackbarHost` on network or API failures.
@@ -45,12 +47,14 @@ This pull request completes all requirements specified in **Lab Assignment-1**, 
 ## 🛡️ Production Security Discussion ("Know the Limits")
 In accordance with the lab assignment:
 - Client-side encryption with Keystore elevates security against file extraction and static decompilation, but cannot prevent memory inspection on rooted devices.
-- For production releases, Gemini calls should be proxied through a backend service (e.g. Firebase Cloud Functions / Ktor) holding the secret in Cloud Secret Manager, protected by **Firebase App Check** (Play Integrity API) and Google Cloud API key restrictions (Package name + SHA-256).
+- For production releases, Gemini calls should be proxied through a backend service (e.g. Firebase Cloud Functions / Ktor) holding the secret in Cloud Secret Manager, protected by **Firebase App Check** (Play Integrity API) and Google Cloud API key restrictions (Package name `com.devraj.geminiassistant` + SHA-256).
 
 ---
 
 ## ✅ Submission Checklist
-- [x] Branch name starts with roll number / student identifier
+- [x] Branch name: `N066_assignment_1`
+- [x] Student: Devraj Murari (N066)
+- [x] Package name: `com.devraj.geminiassistant`
 - [x] No API keys or `local.properties` staged or present in commit history
 - [x] `local.properties.example` template provided
 - [x] Hardware Keystore AES-256-GCM encryption implemented

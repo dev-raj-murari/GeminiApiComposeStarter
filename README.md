@@ -1,15 +1,17 @@
-# Gemini Jetpack Compose AI Assistant
+# Gemini AI Assistant (Android Jetpack Compose)
 ### SVKM's NMIMS University — School of Technology Management & Engineering
 **Course:** Mobile Application Development (`702AI0E002`)  
 **Lab Assignment:** 1  
-**Student:** Devraj Murari ([@dev-raj-murari](https://github.com/dev-raj-murari))  
+**Student Name:** Devraj Murari  
+**Roll Number:** N066  
 **Repository:** [https://github.com/dev-raj-murari/GeminiApiComposeStarter](https://github.com/dev-raj-murari/GeminiApiComposeStarter)  
+**Package:** `com.devraj.geminiassistant`  
 
 ---
 
 ## 📌 Project Overview
 
-An advanced, production-ready Android application built upon the Gemini Jetpack Compose starter app using **Material 3**, **Room Database**, **Preferences DataStore**, and Google's **Gemini AI SDK** (`com.google.ai.client.generativeai`). The application implements secure API key management with hardware-backed **AES-256-GCM Keystore encryption**, offline chat persistence, custom AI parameters, multimodal **Speech-to-Text (Voice) Input**, and responsive multi-window layouts with **WindowSizeClass**.
+An advanced, production-grade Android application developed by **Devraj Murari (N066)** utilizing **Jetpack Compose**, **Material 3**, **Room Database**, **Preferences DataStore**, and Google's **Gemini AI SDK** (`com.google.ai.client.generativeai`). The application implements secure API key management with hardware-backed **AES-256-GCM Keystore encryption**, persistent offline chat history, prompt suggestion chips, multimodal **Speech-to-Text (Voice) Input**, and responsive multi-window layouts with **WindowSizeClass**.
 
 ---
 
@@ -85,7 +87,7 @@ While client-side Keystore encryption mitigates static inspection and file-extra
 2. **Firebase App Check & Play Integrity:**
    - Enforce **Firebase App Check** with the **Play Integrity API** to verify that incoming requests originate solely from genuine, untampered instances of your app.
 3. **Google Cloud Key Restrictions:**
-   - Restrict the API key in Google Cloud Console by **Android App Package Name** (`com.fahim.geminiApiComposeStarter`) and **SHA-256 Certificate Fingerprint**.
+   - Restrict the API key in Google Cloud Console by **Android App Package Name** (`com.devraj.geminiassistant`) and **SHA-256 Certificate Fingerprint**.
 
 ---
 
@@ -100,6 +102,7 @@ While client-side Keystore encryption mitigates static inspection and file-extra
 - **`LazyColumn`**: Message bubbles with stable item keys (`key = { message.id }`) for optimal recomposition performance.
 - **Auto-scroll**: `rememberLazyListState()` smoothly animates to new messages with `LaunchedEffect`.
 - **Material 3 Theming**: Automatic Light/Dark mode switching with `isSystemInDarkTheme()`.
+- **Prompt Suggestion Chips:** One-tap prompt chips for quick exploration.
 
 ### 3. Multimodal Voice Input
 - Integrated `RecognizerIntent.ACTION_RECOGNIZE_SPEECH` launched seamlessly using Compose's `rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult())`.
@@ -130,7 +133,8 @@ While client-side Keystore encryption mitigates static inspection and file-extra
 ---
 
 ## 📜 Submission Checklist
-- [x] Branch name format: `<RollNumber>_assignment_1`
+- [x] Branch name format: `N066_assignment_1`
+- [x] Student: Devraj Murari (N066)
 - [x] API key isolated from version control (`local.properties` in `.gitignore`)
 - [x] `local.properties.example` template provided
 - [x] Hardware-backed AES-256-GCM Keystore encryption at rest implemented
